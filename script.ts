@@ -248,21 +248,7 @@ const dayThree = async () => {
   console.log('life support rating', co2ScrubberRating * oxygenGeneratorRating)
 }
 
-const dayFour = async () => {
-  day(4)
-
-  const dataString = await getData('/day4.txt')
-  // console.log(dataString)
-
-  const dataArray = dataString.split('\n')!
-
-  const randomNumbers = dataArray
-    .shift()!
-    .split(',')
-    .map((n) => +n)
-
-  // console.log(dataArray)
-
+const constructBingoTables = (dataArray: string[]) => {
   const bingoTables = []
   const offset = 6
   for (let index = offset; index < dataArray.length; index += offset) {
@@ -287,6 +273,14 @@ const dayFour = async () => {
 
     bingoTables.push(bingoSets)
   }
+  return bingoTables
+}
+
+const scoreOfFirstWinningBoard = (
+  randomNumbers: number[],
+  dataArray: string[]
+) => {
+  const bingoTables = constructBingoTables(dataArray)
 
   let winningTable = false
   let score = 0
@@ -308,7 +302,7 @@ const dayFour = async () => {
       }
 
       if (winningTable) {
-        console.log('table', table)
+        // console.log('table', table)
         score =
           [
             ...table.reduce(
@@ -320,7 +314,71 @@ const dayFour = async () => {
     }
   }
 
-  console.log('final score', score)
+  return score
+}
+
+const scoreOfLastWinningBoard = (
+  randomNumbers: number[],
+  dataArray: string[]
+) => {
+  let bingoTables = constructBingoTables(dataArray).map((listOfBags) => ({
+    win: false,
+    listOfBags,
+  }))
+
+  let score = 0
+  for (const calledNumber of randomNumbers) {
+    for (const table of bingoTables) {
+      const { listOfBags } = table
+
+      for (const bag of listOfBags) {
+        if (bag.has(calledNumber)) {
+          bag.delete(calledNumber)
+        }
+        table.win = table.win || bag.size === 0
+      }
+
+      if (table.win) {
+        // console.log('table', table)
+        score =
+          [
+            ...listOfBags.reduce(
+              (union, current) => new Set([...union, ...current]),
+              new Set()
+            ),
+          ].reduce((sum, num) => sum + num, 0) * calledNumber
+      }
+    }
+
+    bingoTables = bingoTables.filter((table) => table.win === false)
+  }
+
+  return score
+}
+
+const dayFour = async () => {
+  day(4)
+
+  const dataString = await getData('/day4.txt')
+  // console.log(dataString)
+
+  const [randomString, ...dataArray] = dataString.split('\n')!
+
+  const randomNumbers = randomString.split(',').map((n) => +n)
+
+  // console.log(dataArray)
+
+  let score = scoreOfFirstWinningBoard(randomNumbers, dataArray)
+
+  console.log('final score of first winning board', score)
+
+  score = scoreOfLastWinningBoard(randomNumbers, dataArray)
+
+  console.log('final score of last winning board', score)
+}
+
+const dayFive = async () => {
+  day(5)
 }
 
 const main = async () => {
@@ -328,6 +386,7 @@ const main = async () => {
   await dayTwo()
   await dayThree()
   await dayFour()
+  await dayFive()
 }
 
 main()

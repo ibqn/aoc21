@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "tsc --build --clean",
-    "bundle": "esbuild script.ts --target=chrome58 --outfile=script.js --bundle",
+    "bundle": "esbuild script.ts --target=chrome58 --outfile=script.js --bundle --sourcemap",
     "watch": "npm run bundle -- --watch"
   },
   "dependencies": {

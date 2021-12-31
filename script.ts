@@ -200,14 +200,20 @@ const dayThree = async () => {
 
     binaryList = binaryList.filter((d) => d[position] === bit)
 
-    // console.log('pos', position, 'len', ogr.length)
     if (binaryList.length === 1) {
       result = binaryList[0]
       break
     }
   }
 
-  console.log('result', result)
+  const oxygenGeneratorRating = parseInt(result, 2)
+
+  console.log(
+    'binary',
+    result,
+    'oxygen generator rating',
+    oxygenGeneratorRating
+  )
 
   binaryList = dataArray.slice()
 
@@ -230,20 +236,98 @@ const dayThree = async () => {
 
     binaryList = binaryList.filter((d) => d[position] === bit)
 
-    // console.log('pos', position, 'len', ogr.length)
     if (binaryList.length === 1) {
       result = binaryList[0]
       break
     }
   }
 
-  console.log('result', result)
+  const co2ScrubberRating = parseInt(result, 2)
+  console.log('binary', result, 'CO2 scrubber rating', co2ScrubberRating)
+
+  console.log('life support rating', co2ScrubberRating * oxygenGeneratorRating)
+}
+
+const dayFour = async () => {
+  day(4)
+
+  const dataString = await getData('/day4.txt')
+  // console.log(dataString)
+
+  const dataArray = dataString.split('\n')!
+
+  const randomNumbers = dataArray
+    .shift()!
+    .split(',')
+    .map((n) => +n)
+
+  // console.log(dataArray)
+
+  const bingoTables = []
+  const offset = 6
+  for (let index = offset; index < dataArray.length; index += offset) {
+    const table = dataArray.slice(index - offset + 1, index).map((line) =>
+      line
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => +n)
+    )
+
+    // console.log(table)
+
+    const bingoSets = table.map((line) => new Set(line))
+
+    for (let c = 0; c < table.length; c++) {
+      const column = []
+      for (let r = 0; r < table[c].length; r++) {
+        column.push(table[r][c])
+      }
+      bingoSets.push(new Set(column))
+    }
+
+    bingoTables.push(bingoSets)
+  }
+
+  let winningTable = false
+  let score = 0
+  for (const calledNumber of randomNumbers) {
+    if (winningTable) {
+      break
+    }
+
+    for (const table of bingoTables) {
+      if (winningTable) {
+        break
+      }
+
+      for (const bag of table) {
+        if (bag.has(calledNumber)) {
+          bag.delete(calledNumber)
+        }
+        winningTable = winningTable || bag.size === 0
+      }
+
+      if (winningTable) {
+        console.log('table', table)
+        score =
+          [
+            ...table.reduce(
+              (union, current) => new Set([...union, ...current]),
+              new Set()
+            ),
+          ].reduce((sum, num) => sum + num, 0) * calledNumber
+      }
+    }
+  }
+
+  console.log('final score', score)
 }
 
 const main = async () => {
   await dayOne()
   await dayTwo()
   await dayThree()
+  await dayFour()
 }
 
 main()

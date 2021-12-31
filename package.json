@@ -1,0 +1,16 @@
+{
+  "name": "aoc21",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "tsc --build --clean",
+    "bundle": "esbuild script.ts --target=chrome58 --outfile=script.js --bundle",
+    "watch": "npm run bundle -- --watch"
+  },
+  "dependencies": {
+    "esbuild": "^0.14.9",
+    "typescript": "^4.5.4"
+  }
+}

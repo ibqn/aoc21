@@ -379,6 +379,83 @@ const dayFour = async () => {
 
 const dayFive = async () => {
   day(5)
+
+  let dataString = await getData('/day5.txt')
+
+  const dataArray = dataString
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.split('->'))
+    .map(([p1, p2]) => {
+      const [x1, y1] = p1.split(',').map((n) => +n)
+      const [x2, y2] = p2.split(',').map((n) => +n)
+      return {
+        p1: { x: x1, y: y1 },
+        p2: { x: x2, y: y2 },
+      }
+    })
+
+  // console.log(dataArray)
+
+  let hydrothermalVentures = new Array()
+
+  dataArray
+    .filter(({ p1, p2 }) => p1.x === p2.x || p1.y === p2.y)
+    .forEach((interval) => {
+      const { p1, p2 } = interval
+      for (let x = Math.min(p1.x, p2.x); x <= Math.max(p1.x, p2.x); x++) {
+        let range = hydrothermalVentures[x] || new Array()
+
+        for (let y = Math.min(p1.y, p2.y); y <= Math.max(p1.y, p2.y); y++) {
+          const current = range[y] || 0
+          range[y] = current + 1
+        }
+        hydrothermalVentures[x] = range
+      }
+    })
+
+  let overlaps = hydrothermalVentures
+    .flat()
+    .filter((e) => e)
+    .filter((e) => e > 1).length
+
+  console.log('count of horizontal and vertical overlaps', overlaps)
+
+  // part two
+  hydrothermalVentures = new Array()
+
+  dataArray
+    .filter(
+      ({ p1, p2 }) =>
+        (p1.x - p2.x) % (p1.y - p2.y) === 0 ||
+        (p1.y - p2.y) % (p1.x - p2.x) === 0
+    )
+    .forEach((interval) => {
+      const { p1, p2 } = interval
+
+      const mx = Math.sign(p2.x - p1.x)
+      const my = Math.sign(p2.y - p1.y)
+      const length = Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y))
+
+      for (let t = 0; t <= length; t++) {
+        const x = p1.x + t * mx
+        const y = p1.y + t * my
+
+        const range = hydrothermalVentures[x] || new Array()
+
+        const current = range[y] || 0
+        range[y] = current + 1
+
+        hydrothermalVentures[x] = range
+      }
+    })
+
+  overlaps = hydrothermalVentures
+    .flat()
+    .filter((e) => e)
+    .filter((e) => e > 1).length
+
+  console.log('the number of points where at least two lines overlap', overlaps)
 }
 
 const main = async () => {

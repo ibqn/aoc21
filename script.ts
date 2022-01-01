@@ -458,12 +458,67 @@ const dayFive = async () => {
   console.log('the number of points where at least two lines overlap', overlaps)
 }
 
+const calculateFishPopulationAfter = (
+  initialState: number[],
+  numberofDays: number
+) => {
+  let mapOfStates = new Map<number, number>()
+  initialState.forEach((state) => {
+    const current = mapOfStates.get(state) || 0
+    mapOfStates.set(state, current + 1)
+  })
+
+  console.log(mapOfStates)
+
+  Array.from({ length: numberofDays }).forEach(() => {
+    // console.log('.')
+    const newState = new Map<number, number>()
+
+    for (const [state, value] of mapOfStates) {
+      // console.log(state, value)
+
+      if (state === 0) {
+        const currentValue = newState.get(6) || 0
+        newState.set(6, currentValue + value)
+        newState.set(8, value)
+      } else {
+        const currentValue = newState.get(state - 1) || 0
+        newState.set(state - 1, currentValue + value)
+      }
+    }
+    mapOfStates = newState
+  })
+
+  console.log(mapOfStates)
+
+  return [...mapOfStates.values()].reduce((sum, val) => sum + val, 0)
+}
+
+const daySix = async () => {
+  day(6)
+
+  const dataString = await getData('/day6.txt')
+  // console.log(dataString)
+
+  const initialState = dataString.split(',').map((n) => +n)
+  // const initialState = [3, 4, 3, 1, 2]
+
+  // console.log(initialState)
+
+  let fishPopulation = calculateFishPopulationAfter(initialState, 80)
+  console.log('total number of fish', fishPopulation)
+
+  fishPopulation = calculateFishPopulationAfter(initialState, 265)
+  console.log('total number of fish', fishPopulation)
+}
+
 const main = async () => {
-  await dayOne()
-  await dayTwo()
-  await dayThree()
-  await dayFour()
-  await dayFive()
+  // await dayOne()
+  // await dayTwo()
+  // await dayThree()
+  // await dayFour()
+  // await dayFive()
+  await daySix()
 }
 
 main()

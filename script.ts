@@ -489,7 +489,7 @@ const calculateFishPopulationAfter = (
     mapOfStates = newState
   })
 
-  console.log(mapOfStates)
+  // console.log(mapOfStates)
 
   return [...mapOfStates.values()].reduce((sum, val) => sum + val, 0)
 }
@@ -512,13 +512,49 @@ const daySix = async () => {
   console.log('total number of fish', fishPopulation)
 }
 
+const estimateCosts = (array: number[], move: number) =>
+  array.map((e) => Math.abs(e - move)).reduce((sum, e) => sum + e, 0)
+
+const daySeven = async () => {
+  day(7)
+
+  const dataString = await getData('/day7.txt')
+  // console.log(dataString)
+
+  const initialPositions = dataString.split(',').map((n) => +n)
+  // console.log(initialPositions)
+
+  // console.log(
+  //   'sorted',
+  //   initialPositions.sort((a, b) => a - b)
+  // )
+  // console.log('len', initialPositions.length)
+
+  const minimalHorizontalPosition = initialPositions.sort((a, b) => a - b)[
+    Math.ceil(initialPositions.length / 2)
+  ]
+  // console.log(minimalHorizontalPosition)
+
+  const fuelCost = estimateCosts(initialPositions, minimalHorizontalPosition)
+
+  console.log(
+    `fuel cost ${fuelCost} to reach optimal position ${minimalHorizontalPosition}`
+  )
+
+  // Array.from(
+  //   { length: 20 },
+  //   (_, i) => minimalHorizontalPosition + i - 10
+  // ).forEach((i) => console.log(i))
+}
+
 const main = async () => {
   // await dayOne()
   // await dayTwo()
   // await dayThree()
   // await dayFour()
   // await dayFive()
-  await daySix()
+  // await daySix()
+  await daySeven()
 }
 
 main()
